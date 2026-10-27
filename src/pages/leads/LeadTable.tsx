@@ -38,7 +38,7 @@ const statusTones: Record<string, BadgeTone> = {
   closed: 'success'
 }
 
-export function StatusBadge({ lead }: { lead: Lead }) {
+function StatusBadge({ lead }: { lead: Lead }) {
   return <Badge tone={statusTones[lead.status] ?? 'neutral'}>{statusLabel(lead.status)}</Badge>
 }
 

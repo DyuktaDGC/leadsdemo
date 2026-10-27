@@ -7,7 +7,7 @@ import { useActiveProjectNames } from '@hooks/useProjects'
 import { useSession } from '@hooks/useSession'
 import type { CallLog } from '@logic/leads/leadTypes'
 import { distinctValues } from '@logic/rules/requirements'
-import { formatDateTime, todayKey } from '@shared/lib/date'
+import { formatDate, formatDateTime, formatTime, todayKey } from '@shared/lib/date'
 import { DateRangePicker } from '@shared/ui/DateRangePicker'
 import { Dropdown } from '@shared/ui/Dropdown'
 import { SearchInput } from '@shared/ui/SearchInput'
@@ -25,12 +25,16 @@ const inRange = (calls: CallLog[], range: Range) =>
   })
 const leadCount = (calls: CallLog[]) => new Set(calls.map((call) => call.leadId)).size
 
-const callColumns: Column<CallLog>[] = [
-  { key: 'lead', header: 'Lead', cell: (call) => <span className="font-semibold text-ink">{call.leadName}</span> },
-  { key: 'campaign', header: 'Campaign', cell: (call) => call.campaign ?? 'N/A' },
-  { key: 'project', header: 'Project', cell: (call) => call.project ?? 'N/A' },
-  { key: 'by', header: 'Called by', className: 'whitespace-nowrap', cell: (call) => call.userName ?? 'N/A' },
-  { key: 'at', header: 'When', className: 'whitespace-nowrap', cell: (call) => formatDateTime(call.at) }
+const myCallColumns: Column<CallLog>[] = [
+  { key: 'date', header: 'Date', className: 'whitespace-nowrap', cell: (call) => formatDate(call.at) },
+  { key: 'time', header: 'Time', className: 'whitespace-nowrap', cell: (call) => formatTime(call.at) },
+  { key: 'phone', header: 'Number', className: 'whitespace-nowrap tabular-nums', cell: (call) => call.leadPhone ?? 'N/A' },
+  { key: 'lead', header: 'Name', cell: (call) => <span className="font-semibold text-ink">{call.leadName}</span> }
+]
+
+const teamCallColumns: Column<CallLog>[] = [
+  ...myCallColumns,
+  { key: 'by', header: 'Called by', className: 'whitespace-nowrap', cell: (call) => call.userName ?? 'N/A' }
 ]
 
 const personColumns: Column<PersonRow>[] = [
@@ -68,7 +72,7 @@ export function CallsPage() {
       <section className="space-y-3">
         <h2 className="text-lg font-bold text-ink">My call log</h2>
         <Table
-          columns={callColumns.filter((column) => column.key === 'lead' || column.key === 'at')}
+          columns={myCallColumns}
           rows={mine}
           rowKey={(call) => `${call.at}-${call.leadId}`}
           isLoading={loading}
@@ -99,7 +103,7 @@ export function TeamCallsPage() {
       (!project || call.project === project) &&
       (!caller || call.userId === caller) &&
       (!campaign || call.campaign === campaign) &&
-      (!needle || [call.leadName, call.userName].some((field) => (field ?? '').toLowerCase().includes(needle)))
+      (!needle || [call.leadName, call.leadPhone, call.userName].some((field) => (field ?? '').toLowerCase().includes(needle)))
   )
   const loading = stats.isPending
 
@@ -182,7 +186,7 @@ export function TeamCallsPage() {
       <section className="space-y-3">
         <h2 className="text-lg font-bold text-ink">Team call log</h2>
         <Table
-          columns={callColumns}
+          columns={teamCallColumns}
           rows={calls}
           rowKey={(call) => `${call.at}-${call.leadId}-${call.userId}`}
           isLoading={loading}

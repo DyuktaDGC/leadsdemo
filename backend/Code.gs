@@ -371,12 +371,12 @@ const API = {
     const owner = me.role === 'owner'
     const leads = {}
     read('Leads').forEach((lead) => (leads[lead.id] = lead))
-    const gone = { name: 'Deleted lead', project: null, campaign: null }
+    const gone = { name: 'Deleted lead', phone: null, project: null, campaign: null }
     const calls = read('Events')
       .filter((e) => e.event === 'call' && (owner || e.assigneeIds.includes(me.id)))
       .map((e) => {
         const lead = leads[e.leadId] || gone
-        return { at: e.at, leadId: e.leadId, leadName: lead.name, project: lead.project, campaign: lead.campaign, userId: e.assigneeIds[0] || null, userName: e.byName }
+        return { at: e.at, leadId: e.leadId, leadName: lead.name, leadPhone: lead.phone || null, project: lead.project, campaign: lead.campaign, userId: e.assigneeIds[0] || null, userName: e.byName }
       })
       .sort((a, b) => String(b.at).localeCompare(String(a.at)))
     const people = owner ? read('Users').filter((u) => u.active).map((u) => ({ id: u.id, name: u.fullName })) : []

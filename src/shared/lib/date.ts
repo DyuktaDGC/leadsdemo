@@ -29,6 +29,18 @@ export function formatDate(value: string | number | Date | null | undefined): st
   return date ? dateFormatter.format(date) : 'N/A'
 }
 
+const timeFormatter = new Intl.DateTimeFormat('en-IN', {
+  timeZone: APP_TIME_ZONE,
+  hour: '2-digit',
+  minute: '2-digit'
+})
+
+export function formatTime(value: string | number | Date | null | undefined): string {
+  if (value == null) return 'N/A'
+  const date = toDate(value)
+  return date ? timeFormatter.format(date) : 'N/A'
+}
+
 export function formatDateTime(value: string | number | Date | null | undefined): string {
   if (value == null) return 'N/A'
   const date = toDate(value)

@@ -65,6 +65,7 @@ export type CallLog = {
   at: string
   leadId: string
   leadName: string
+  leadPhone?: string | null
   project: string | null
   campaign: string | null
   userId: string | null
