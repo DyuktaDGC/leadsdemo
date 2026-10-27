@@ -25,7 +25,7 @@ export function StatTile({
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
       <div className="flex items-start justify-between gap-3">
-        <p className="text-sm font-medium text-slate-500">{label}</p>
+        <p className="min-w-0 text-sm font-medium text-slate-500">{label}</p>
         <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${statTones[tone]}`}>
           <Icon className="h-[18px] w-[18px]" />
         </span>

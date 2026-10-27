@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
-import { assignLeads, shareLeads, writeLead } from '@logic/leads/leadsApi'
+import type { ImportRow } from '@logic/leads/importRows'
+import { assignLeads, importLeads, shareLeads, writeLead } from '@logic/leads/leadsApi'
 import type { Lead, LeadWriteInput, RosterMember } from '@logic/leads/leadTypes'
 import { pluralize } from '@shared/lib/format'
 import { queryKeys } from '@shared/lib/queryKeys'
@@ -24,6 +25,26 @@ export function useShareLeads() {
     onSuccess: (people, groups) =>
       toast(
         `${pluralize(groups.reduce((sum, group) => sum + group.leadIds.length, 0), 'lead')} shared between ${pluralize(people, 'person', 'people')}`
+      ),
+    onError: (error) => toast(error.message, 'error'),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.leads.all })
+  })
+}
+
+export function useImportLeads() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ rows, fileName }: { rows: ImportRow[]; fileName: string }) => importLeads(rows, fileName),
+    onSuccess: ({ added, repeats, rejected }) =>
+      toast(
+        [
+          `${pluralize(added, 'lead')} added`,
+          repeats > 0 && `${pluralize(repeats, 'repeat')}`,
+          rejected > 0 && `${rejected} without a valid phone`
+        ]
+          .filter(Boolean)
+          .join(' · ')
       ),
     onError: (error) => toast(error.message, 'error'),
     onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.leads.all })

@@ -4,6 +4,7 @@ import type { Lead } from '@logic/leads/leadTypes'
 import { priorityLabel } from '@logic/rules/priority'
 import { statusLabel } from '@logic/rules/statuses'
 import { assigneeNames } from '@logic/rules/transfer'
+import { ContactButtons } from '@pages/leads/ContactButtons'
 import { cn } from '@shared/lib/cn'
 import { formatDate } from '@shared/lib/date'
 import { Badge, type BadgeTone } from '@shared/ui/Badge'
@@ -37,6 +38,10 @@ const statusTones: Record<string, BadgeTone> = {
   closed: 'success'
 }
 
+export function StatusBadge({ lead }: { lead: Lead }) {
+  return <Badge tone={statusTones[lead.status] ?? 'neutral'}>{statusLabel(lead.status)}</Badge>
+}
+
 export function RepeatedBadge({ lead }: { lead: Lead }) {
   const times = lead.activity?.filter((entry) => entry.event === 'repeat').length ?? 0
   if (times === 0) return null
@@ -55,6 +60,7 @@ const baseColumns: Column<Lead>[] = [
   {
     key: 'name',
     header: 'Lead',
+    className: 'whitespace-nowrap',
     cell: (lead) => (
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
@@ -68,7 +74,6 @@ const baseColumns: Column<Lead>[] = [
   {
     key: 'source',
     header: 'Source',
-    className: 'whitespace-nowrap',
     cell: (lead) => (
       <div>
         <p>{lead.source ?? 'N/A'}</p>
@@ -81,7 +86,6 @@ const baseColumns: Column<Lead>[] = [
   {
     key: 'project',
     header: 'Project',
-    className: 'whitespace-nowrap',
     cell: (lead) => lead.project ?? 'N/A'
   },
   {
@@ -102,7 +106,7 @@ const baseColumns: Column<Lead>[] = [
     key: 'status',
     header: 'Status',
     className: 'whitespace-nowrap',
-    cell: (lead) => <Badge tone={statusTones[lead.status] ?? 'neutral'}>{statusLabel(lead.status)}</Badge>
+    cell: (lead) => <StatusBadge lead={lead} />
   },
   {
     key: 'nextFollowUp',
@@ -146,17 +150,17 @@ export function LeadTable({
     {
       key: 'assign',
       header: 'Action',
-      className: 'w-44 whitespace-nowrap text-right',
+      mobile: 'bare',
+      className: 'whitespace-nowrap text-right',
       cell: (lead) => (
-          <div className="flex items-center justify-end gap-2">
+        <div className="flex items-center justify-end gap-2">
+          <ContactButtons lead={lead} />
+          <div className="flex items-center gap-2">
             {lead.canEdit && (
               <button
                 type="button"
-                onClick={(event) => {
-                  event.stopPropagation()
-                  onEdit(lead)
-                }}
-                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-1 border border-brand-200 bg-brand-50 text-brand-700 hover:border-brand-300 hover:bg-brand-100"
+                onClick={() => onEdit(lead)}
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-1 border border-brand-200 bg-brand-50 text-brand-700 hover:border-brand-300 hover:bg-brand-100"
               >
                 <Pencil className="h-3.5 w-3.5" />
                 Edit
@@ -165,18 +169,16 @@ export function LeadTable({
             {lead.canAssign && (
               <button
                 type="button"
-                onClick={(event) => {
-                  event.stopPropagation()
-                  onAssign(lead)
-                }}
-                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-1 bg-brand-600 text-white shadow-sm hover:bg-brand-700"
+                onClick={() => onAssign(lead)}
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-1 bg-brand-600 text-white shadow-sm hover:bg-brand-700"
               >
                 <UserPlus className="h-3.5 w-3.5" />
                 {lead.assignees.length > 0 ? 'Reassign' : 'Assign'}
               </button>
             )}
           </div>
-        )
+        </div>
+      )
     }
   ]
 

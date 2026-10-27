@@ -4,6 +4,7 @@ import { useAddUser, useUsers } from '@hooks/useUsers'
 import { validateEmail } from '@logic/rules/credentials'
 import type { Role } from '@logic/rules/session'
 import { userName } from '@logic/users/userTypes'
+import { ProjectPicker } from '@pages/users/ProjectPicker'
 import { Button } from '@shared/ui/Button'
 import { Checkbox } from '@shared/ui/Checkbox'
 import { Input } from '@shared/ui/Input'
@@ -26,6 +27,7 @@ export function AddUserDialog({
   const [takeOverFrom, setTakeOverFrom] = useState('')
   const [keep, setKeep] = useState(true)
   const [deactivate, setDeactivate] = useState(false)
+  const [projectIds, setProjectIds] = useState<string[]>([])
 
   const createdId = add.createdId
   const busy = add.isPending
@@ -43,6 +45,7 @@ export function AddUserDialog({
     setTakeOverFrom('')
     setKeep(true)
     setDeactivate(false)
+    setProjectIds([])
     onClose()
   }
 
@@ -50,7 +53,15 @@ export function AddUserDialog({
     event.preventDefault()
     if (busy || !canSubmit) return
     add.mutate(
-      { email: email.trim(), fullName: fullName.trim(), role, leaving, keep, deactivate },
+      {
+        email: email.trim(),
+        fullName: fullName.trim(),
+        role,
+        leaving,
+        keep,
+        deactivate,
+        projectIds: role === 'employee' ? projectIds : null
+      },
       { onSuccess: close }
     )
   }
@@ -88,6 +99,7 @@ export function AddUserDialog({
             { value: 'owner', label: 'Owner' }
           ]}
         />
+        <ProjectPicker owner={role === 'owner'} picked={projectIds} onChange={setProjectIds} disabled={locked} />
 
         <div className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
           <Select
@@ -138,7 +150,7 @@ export function AddUserDialog({
         </div>
 
         <p className="text-xs text-slate-500">
-          They can sign in right away from the demo sign in screen.
+          We email them an invite to set a password. They can also continue with Google using this email.
         </p>
 
         {failure && (

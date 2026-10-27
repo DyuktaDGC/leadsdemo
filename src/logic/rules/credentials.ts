@@ -2,8 +2,17 @@ const EMAIL_PATTERN = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(\.[a-z0-9!#$%&'*+/=?^_`{|}~
 
 const RESERVED_TLDS = new Set(['test', 'example', 'invalid', 'localhost', 'local'])
 
+export type FieldErrors = {
+  email?: string
+  password?: string
+}
+
+function normalizeEmail(raw: string): string {
+  return raw.trim().toLowerCase()
+}
+
 export function validateEmail(raw: string): string | undefined {
-  const email = raw.trim().toLowerCase()
+  const email = normalizeEmail(raw)
 
   if (!email) return 'Enter your email address.'
   if (email.length > 254) return 'That email address is too long.'
@@ -17,4 +26,26 @@ export function validateEmail(raw: string): string | undefined {
   if (RESERVED_TLDS.has(tld)) return `".${tld}" is not a real domain ending.`
 
   return undefined
+}
+
+function validatePassword(password: string): string | undefined {
+  if (!password) return 'Enter your password.'
+
+  return undefined
+}
+
+export function validateCredentials(email: string, password: string): FieldErrors {
+  const errors: FieldErrors = {}
+
+  const emailError = validateEmail(email)
+  if (emailError) errors.email = emailError
+
+  const passwordError = validatePassword(password)
+  if (passwordError) errors.password = passwordError
+
+  return errors
+}
+
+export function hasErrors(errors: FieldErrors): boolean {
+  return Object.keys(errors).length > 0
 }

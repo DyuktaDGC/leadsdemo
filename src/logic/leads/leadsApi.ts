@@ -1,4 +1,5 @@
-import type { Lead, LeadsQuery, Performance, LeadsResponse, LeadWriteInput, LeadWriteResponse, RosterMember } from '@logic/leads/leadTypes'
+import type { ImportResult, ImportRow } from '@logic/leads/importRows'
+import type { CallStats, Lead, LeadsQuery, Performance, LeadsResponse, LeadWriteInput, LeadWriteResponse, RosterMember } from '@logic/leads/leadTypes'
 import { handoverPlan } from '@logic/rules/transfer'
 import { call } from '@shared/lib/backend'
 
@@ -6,7 +7,13 @@ export const fetchLeads = (query: LeadsQuery) => call<LeadsResponse>('listLeads'
 
 export const fetchPerformance = () => call<Performance>('performance')
 
+export const logCall = (leadId: string) => call<void>('logCall', leadId)
+
+export const fetchCallStats = () => call<CallStats>('callStats')
+
 export const writeLead = (input: LeadWriteInput) => call<LeadWriteResponse>('writeLead', input)
+
+export const importLeads = (rows: ImportRow[], fileName: string) => call<ImportResult>('importLeads', rows, fileName)
 
 export async function shareLeads(groups: { userId: string; leadIds: string[] }[]): Promise<number> {
   for (const group of groups) {

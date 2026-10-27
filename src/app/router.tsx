@@ -4,6 +4,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { RequireAuth, RequireOwner } from '@app/guards'
 import { AppShell } from '@app/layout/AppShell'
 import { LoginPage } from '@pages/login/LoginPage'
+import { SetPasswordPage } from '@pages/set-password/SetPasswordPage'
 
 const OverviewPage = lazy(() =>
   import('@pages/overview/OverviewPage').then((m) => ({ default: m.OverviewPage }))
@@ -26,6 +27,12 @@ const ProjectsPage = lazy(() =>
 const CampaignsPage = lazy(() =>
   import('@pages/campaigns/CampaignsPage').then((m) => ({ default: m.CampaignsPage }))
 )
+const CallsPage = lazy(() =>
+  import('@pages/calls/CallsPage').then((m) => ({ default: m.CallsPage }))
+)
+const TeamCallsPage = lazy(() =>
+  import('@pages/calls/CallsPage').then((m) => ({ default: m.TeamCallsPage }))
+)
 const AccountPage = lazy(() =>
   import('@pages/account/AccountPage').then((m) => ({ default: m.AccountPage }))
 )
@@ -38,6 +45,7 @@ export function AppRouter() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/set-password" element={<SetPasswordPage />} />
         <Route
           element={
             <RequireAuth>
@@ -57,6 +65,15 @@ export function AppRouter() {
             element={
               <RequireOwner>
                 <CampaignsPage />
+              </RequireOwner>
+            }
+          />
+          <Route path="/calls" element={<CallsPage />} />
+          <Route
+            path="/team-calls"
+            element={
+              <RequireOwner>
+                <TeamCallsPage />
               </RequireOwner>
             }
           />

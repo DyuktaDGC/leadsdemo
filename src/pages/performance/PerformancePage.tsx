@@ -5,7 +5,7 @@ import { usePerformance } from '@hooks/usePerformance'
 import type { ClosedDeal, Performance } from '@logic/leads/leadTypes'
 import { cn } from '@shared/lib/cn'
 import { toKey, todayKey } from '@shared/lib/date'
-import { compactMoney, formatMoney, pluralize } from '@shared/lib/format'
+import { compactMoney, formatMoney, niceTop, pluralize } from '@shared/lib/format'
 import { Badge } from '@shared/ui/Badge'
 import { Skeleton } from '@shared/ui/Skeleton'
 import { StatTile } from '@shared/ui/StatTile'
@@ -37,12 +37,6 @@ function monthly(deals: ClosedDeal[]): Month[] {
   })
 }
 
-function niceTop(max: number): number {
-  if (max <= 0) return 100000
-  const step = 10 ** Math.floor(Math.log10(max)) / 2
-  return Math.ceil(max / step) * step
-}
-
 const H = 240
 const PAD = { top: 28, right: 24, bottom: 28, left: 56 }
 
@@ -53,12 +47,13 @@ function GrowthChart({ months }: { months: Month[] }) {
   useLayoutEffect(() => {
     const element = box.current
     if (!element) return
+    setWidth(Math.max(280, element.clientWidth))
     const observer = new ResizeObserver(([entry]) => setWidth(Math.max(280, entry!.contentRect.width)))
     observer.observe(element)
     return () => observer.disconnect()
   }, [])
 
-  const top = niceTop(Math.max(...months.map((month) => month.total)))
+  const top = niceTop(Math.max(...months.map((month) => month.total)), 100000)
   const plotW = W - PAD.left - PAD.right
   const plotH = H - PAD.top - PAD.bottom
   const slot = plotW / months.length
@@ -135,29 +130,32 @@ function GrowthChart({ months }: { months: Month[] }) {
           </p>
         </div>
       )}
-      <table className="sr-only">
-        <caption>Total amount closed by month</caption>
-        <tbody>
-          {months.map((month) => (
-            <tr key={month.key}>
-              <th scope="row">{month.label}</th>
-              <td>{formatMoney(month.total)}</td>
-              <td>{formatMoney(month.amount)} this month</td>
-              <td>{pluralize(month.deals, 'deal')}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="sr-only">
+        <table>
+          <caption>Total amount closed by month</caption>
+          <tbody>
+            {months.map((month) => (
+              <tr key={month.key}>
+                <th scope="row">{month.label}</th>
+                <td>{formatMoney(month.total)}</td>
+                <td>{formatMoney(month.amount)} this month</td>
+                <td>{pluralize(month.deals, 'deal')}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }
 
-type BoardRow = Performance['board'][number] & { rank: number; share: number }
+type BoardRow = Performance['board'][number] & { rank: number }
 
 const boardColumns: Column<BoardRow>[] = [
   {
     key: 'rank',
     header: '#',
+    mobile: 'title',
     className: 'w-14',
     cell: (row) =>
       row.rank <= MEDALS.length && row.amount > 0 ? (
@@ -171,20 +169,16 @@ const boardColumns: Column<BoardRow>[] = [
   {
     key: 'name',
     header: 'Name',
+    mobile: 'title',
     cell: (row) => (
-      <div className="min-w-0 space-y-1.5">
-        <span className={cn('flex items-center gap-2', row.you ? 'font-semibold text-ink' : 'text-slate-700')}>
-          {row.name}
-          {row.you && (
-            <Badge tone="neutral" size="sm">
-              You
-            </Badge>
-          )}
-        </span>
-        <div className="h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-brand-100">
-          <div className="h-full rounded-full bg-brand-600" style={{ width: `${row.share * 100}%` }} />
-        </div>
-      </div>
+      <span className={cn('flex items-center gap-2', row.you ? 'font-semibold text-ink' : 'text-slate-700')}>
+        {row.name}
+        {row.you && (
+          <Badge tone="neutral" size="sm">
+            You
+          </Badge>
+        )}
+      </span>
     )
   },
   {
@@ -200,14 +194,13 @@ export function PerformancePage() {
   const months = useMemo(() => monthly(mine), [mine])
   const total = mine.reduce((sum, deal) => sum + deal.amount, 0)
   const rows = performance.data?.board ?? []
-  const leader = rows[0]?.amount || 1
-  const board = rows.map((row, index) => ({ ...row, rank: index + 1, share: row.amount / leader }))
+  const board = rows.map((row, index) => ({ ...row, rank: index + 1 }))
   const loading = performance.isPending
 
   return (
     <div className="space-y-5 sm:space-y-6">
       <header>
-        <h1 className="text-2xl font-bold text-ink sm:text-3xl">Performance</h1>
+        <h1 className="text-2xl font-bold text-ink sm:text-3xl">My performance</h1>
       </header>
 
       {performance.error && <p className="text-sm text-red-600">{performance.error.message}</p>}

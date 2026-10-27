@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 
 import { useSession } from '@hooks/useSession'
 import { fetchProjects, saveProject, writeProject } from '@logic/projects/projectsApi'
-import type { Project } from '@logic/rules/projects'
+import { projectsOf, type Project } from '@logic/rules/projects'
 import { queryKeys } from '@shared/lib/queryKeys'
 import { toast } from '@shared/lib/toast'
 
@@ -30,12 +30,7 @@ export function useMyProjectNames(): string[] | null {
 
   return useMemo(() => {
     if (owner) return null
-    return projects
-      .filter(
-        (project) =>
-          project.active && userId !== null && project.memberIds.includes(userId)
-      )
-      .map((project) => project.name)
+    return userId === null ? [] : projectsOf(projects, userId).map((project) => project.name)
   }, [owner, userId, projects])
 }
 

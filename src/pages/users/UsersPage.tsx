@@ -12,8 +12,7 @@ import { Button } from '@shared/ui/Button'
 export function UsersPage() {
   const users = useUsers()
   const everyone = users.data ?? []
-  const owners = everyone.filter((person) => person.role === 'owner')
-  const team = everyone.filter((person) => person.role !== 'owner')
+  const ordered = [...everyone.filter((person) => person.role === 'owner'), ...everyone.filter((person) => person.role !== 'owner')]
   const [adding, setAdding] = useState(false)
   const [editing, setEditing] = useState<AppUser | null>(null)
   const [handing, setHanding] = useState<AppUser | null>(null)
@@ -30,16 +29,8 @@ export function UsersPage() {
 
       {users.isError && <p className="text-sm text-red-600">{(users.error as Error).message}</p>}
 
-      {owners.length > 0 && (
-        <UserTable
-          users={owners}
-          isLoading={users.isPending}
-          onEdit={setEditing}
-          onHandover={setHanding}
-        />
-      )}
       <UserTable
-        users={team}
+        users={ordered}
         isLoading={users.isPending}
         onEdit={setEditing}
         onHandover={setHanding}

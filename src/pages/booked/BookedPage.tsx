@@ -1,4 +1,4 @@
-import { IndianRupee, Search, SlidersHorizontal, X } from 'lucide-react'
+import { IndianRupee, SlidersHorizontal, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -7,11 +7,14 @@ import type { Lead } from '@logic/leads/leadTypes'
 import { sameProject } from '@logic/rules/projects'
 import { distinctValues } from '@logic/rules/requirements'
 import { assigneeNames } from '@logic/rules/transfer'
+import { ContactButtons } from '@pages/leads/ContactButtons'
+import { RepeatedBadge } from '@pages/leads/LeadTable'
 import { cn } from '@shared/lib/cn'
 import { formatDate, todayKey } from '@shared/lib/date'
 import { compactMoney, formatMoney } from '@shared/lib/format'
 import { DateRangePicker } from '@shared/ui/DateRangePicker'
 import { Input } from '@shared/ui/Input'
+import { SearchInput } from '@shared/ui/SearchInput'
 import { Select } from '@shared/ui/Select'
 import { Table, type Column } from '@shared/ui/Table'
 import { useAnchoredPanel } from '@shared/ui/useAnchoredPanel'
@@ -25,7 +28,10 @@ const columns: Column<Booking>[] = [
     header: 'Lead',
     cell: ({ lead }) => (
       <div className="min-w-0">
-        <p className="font-semibold text-ink">{lead.name}</p>
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="font-semibold text-ink">{lead.name}</p>
+          <RepeatedBadge lead={lead} />
+        </div>
         <p className="text-xs text-slate-500">{lead.phone ?? 'N/A'}</p>
       </div>
     )
@@ -40,6 +46,16 @@ const columns: Column<Booking>[] = [
       <span className="block text-right font-semibold tabular-nums text-ink">
         {lead.amount ? formatMoney(lead.amount) : 'N/A'}
       </span>
+    )
+  },
+  {
+    key: 'action',
+    header: <span className="block text-right">Action</span>,
+    mobile: 'bare',
+    cell: ({ lead }) => (
+      <div className="flex justify-end">
+        <ContactButtons lead={lead} />
+      </div>
     )
   }
 ]
@@ -132,7 +148,7 @@ function AmountFilter({
         aria-expanded={isOpen}
         onClick={() => setIsOpen((open) => !open)}
         className={cn(
-          'flex h-12 w-full items-center gap-2 rounded-xl border bg-white px-3 text-sm font-semibold transition-colors sm:h-10',
+          'flex h-10 w-full items-center gap-2 rounded-xl border bg-white px-3 text-sm font-semibold transition-colors',
           value ? 'border-brand-300 text-brand-700' : 'border-slate-300 text-slate-600',
           'hover:bg-slate-50 focus:border-brand-400 focus:outline-none',
           isOpen && 'border-brand-400'
@@ -256,19 +272,16 @@ export function BookedPage() {
           )}
         </header>
         <div className="grid grid-cols-1 items-end gap-4 px-4 py-4 sm:grid-cols-2 sm:px-5 xl:grid-cols-5">
-          <div className="relative sm:col-span-2 xl:col-span-2">
-            <Search className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <Input
-              className="pl-9"
-              aria-label="Search booked deals"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-            />
-          </div>
+          <SearchInput
+            className="sm:col-span-2 xl:col-span-2"
+            aria-label="Search booked deals"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
           <Select label="Project" placeholder="All projects" options={projects} value={project} onChange={setProject} />
           <div className="flex flex-col gap-1">
             <span className="text-sm font-medium text-slate-700">Closed on</span>
-            <DateRangePicker className="w-full sm:h-10" label="Any date" value={range} onChange={setRange} onClear={() => setRange(null)} />
+            <DateRangePicker className="w-full" label="Any date" value={range} onChange={setRange} onClear={() => setRange(null)} />
           </div>
           <div className="flex flex-col gap-1">
             <span className="text-sm font-medium text-slate-700">Amount</span>

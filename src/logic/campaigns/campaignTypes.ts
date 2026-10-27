@@ -7,3 +7,9 @@ export type Campaign = {
   start: string
   leads: number
 }
+
+export type SourceConnection = {
+  id: string
+  connected: boolean
+  error?: string | null
+}

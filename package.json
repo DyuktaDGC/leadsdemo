@@ -9,14 +9,15 @@
     "lint": "eslint .",
     "typecheck": "tsc -b",
     "preview": "vite preview",
-    "check": "node src/shared/lib/backend.check.ts"
+    "test": "node backend/test.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.102.8",
     "lucide-react": "^1.37.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "react-router-dom": "^7.18.3"
+    "react-router-dom": "^7.18.3",
+    "read-excel-file": "^9.3.12"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

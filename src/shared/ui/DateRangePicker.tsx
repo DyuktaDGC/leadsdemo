@@ -76,7 +76,7 @@ export function DateRangePicker({
           setIsOpen((open) => !open)
         }}
         className={cn(
-          'flex h-12 shrink-0 items-center gap-2 rounded-xl border bg-white px-3 text-sm font-semibold transition-colors sm:h-10',
+          'flex h-10 shrink-0 items-center gap-2 rounded-xl border bg-white px-3 text-sm font-semibold transition-colors',
           value ? 'border-brand-300 text-brand-700' : 'border-slate-300 text-slate-600',
           'hover:bg-slate-50 focus:border-brand-400 focus:outline-none',
           isOpen && 'border-brand-400',

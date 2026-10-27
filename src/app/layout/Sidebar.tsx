@@ -1,4 +1,4 @@
-import { BadgeCheck, Building2, CalendarClock, LayoutDashboard, List, LogOut, Megaphone, Moon, PanelLeftClose, PanelLeftOpen, Settings, Sun, Trophy, UserPlus, Users, type LucideIcon } from 'lucide-react'
+import { BadgeCheck, Building2, CalendarClock, LayoutDashboard, List, LogOut, Megaphone, Moon, PanelLeftClose, PanelLeftOpen, Phone, PhoneCall, Settings, Sun, Trophy, UserPlus, Users, type LucideIcon } from 'lucide-react'
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
 
 import { useFollowUps } from '@hooks/useFollowUps'
@@ -56,7 +56,7 @@ export function Sidebar({
       heading: null,
       items: [
         { label: 'Overview', icon: LayoutDashboard, to: '/overview' },
-        { label: 'Performance', icon: Trophy, to: '/performance' }
+        { label: 'My performance', icon: Trophy, to: '/performance' }
       ]
     },
     {
@@ -77,6 +77,7 @@ export function Sidebar({
           badge: followUps.overdue.length + followUps.today.length
         },
         { label: 'Booked', icon: BadgeCheck, to: '/booked' },
+        { label: 'Calls', icon: Phone, to: '/calls' },
         {
           label: 'All Leads',
           icon: List,
@@ -92,6 +93,7 @@ export function Sidebar({
     {
       heading: 'Management',
       items: [
+        { label: 'Team calls', icon: PhoneCall, to: '/team-calls', ownerOnly: true },
         { label: 'Projects', icon: Building2, to: '/projects', ownerOnly: true },
         { label: 'Users', icon: Users, to: '/users', ownerOnly: true },
         { label: 'Account', icon: Settings, to: '/account' }

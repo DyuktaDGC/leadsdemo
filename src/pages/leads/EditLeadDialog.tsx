@@ -205,7 +205,7 @@ export function EditLeadDialog({ lead, onClose }: { lead: Lead; onClose: () => v
             id="lead-notes"
             value={notes}
             onChange={(event) => setNotes(event.target.value)}
-            className="scrollbar-thin h-28 w-full resize-none overflow-y-auto break-words rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
+            className="scrollbar-thin h-28 w-full resize-none overflow-y-auto wrap-break-word rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
           />
         </div>
 

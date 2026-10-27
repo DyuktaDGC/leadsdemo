@@ -1,10 +1,10 @@
-import { ArrowRight, Check, Shuffle, Users } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { ArrowRight, Check, Shuffle, Timer, Users } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { useShareLeads } from '@hooks/useLeadMutations'
 import { useLeads } from '@hooks/useLeads'
-import { splitByCounts, splitEvenly } from '@logic/rules/transfer'
+import { splitByCounts } from '@logic/rules/transfer'
 import { cn } from '@shared/lib/cn'
 import { todayKey } from '@shared/lib/date'
 import { pluralize } from '@shared/lib/format'
@@ -14,6 +14,42 @@ import { Skeleton } from '@shared/ui/Skeleton'
 
 const CARD =
   'rounded-2xl bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 p-4 text-white shadow-lg shadow-brand-900/20 sm:p-6'
+
+const pad = (n: number) => String(n).padStart(2, '0')
+
+const SYNC_EVERY = 60 * 60_000
+
+function SyncTimer({ syncedAt }: { syncedAt: string | null }) {
+  const [now, setNow] = useState(Date.now)
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), 1000)
+    return () => window.clearInterval(id)
+  }, [])
+  if (!syncedAt) return null
+  const left = Math.max(0, Math.floor((Date.parse(syncedAt) + SYNC_EVERY - now) / 1000))
+
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-xs font-semibold text-white">
+      <Timer className="h-3.5 w-3.5" />
+      {left > 0 ? (
+        <>
+          New leads in <span className="tabular-nums">{pad(Math.floor(left / 60))}:{pad(left % 60)}</span>
+        </>
+      ) : (
+        'Fetching new leads…'
+      )}
+    </span>
+  )
+}
+
+function CardTitle({ syncedAt }: { syncedAt: string | null }) {
+  return (
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+      <h2 className="text-lg font-bold text-white">Today&apos;s leads</h2>
+      <SyncTimer syncedAt={syncedAt} />
+    </div>
+  )
+}
 
 const isToday = (iso: string | null, today: string) => iso !== null && todayKey(new Date(iso)) === today
 
@@ -32,7 +68,7 @@ export function MyTodayLeadsCard() {
     <section className={CARD}>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-white">Today&apos;s leads</h2>
+          <CardTitle syncedAt={leads.syncedAt} />
           {leads.isPending ? (
             <Skeleton className="mt-2 h-10 w-40 bg-white/20" />
           ) : (
@@ -78,11 +114,11 @@ export function TodayLeadsCard() {
     [leads.leads, today]
   )
   const waiting = todays.filter((lead) => lead.view === 'unassigned')
-  const team = leads.roster.filter((person) => person.role === 'employee')
+  const team = leads.roster
 
   const waitingIds = waiting.map((lead) => lead.id)
-  const even = splitEvenly(waitingIds, picked)
-  const countFor = (id: string) => counts[id] ?? even.find((group) => group.userId === id)?.leadIds.length ?? 0
+  const even = (index: number) => Math.floor(waiting.length / picked.length) + (index < waiting.length % picked.length ? 1 : 0)
+  const countFor = (id: string) => counts[id] ?? even(picked.indexOf(id))
   const total = picked.reduce((sum, id) => sum + countFor(id), 0)
   const over = total - waiting.length
   const plan = splitByCounts(waitingIds, picked.map((userId) => ({ userId, count: countFor(userId) })))
@@ -111,7 +147,7 @@ export function TodayLeadsCard() {
     <section className={CARD}>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-white">Today&apos;s leads</h2>
+          <CardTitle syncedAt={leads.syncedAt} />
           {leads.isPending ? (
             <Skeleton className="mt-2 h-10 w-40 bg-white/20" />
           ) : (
@@ -168,6 +204,7 @@ export function TodayLeadsCard() {
               </button>
             )}
           </div>
+          {team.length === 0 && <p className="text-sm text-slate-500">No active users yet. Add one on the Users page.</p>}
           <ul className="scrollbar-thin max-h-72 divide-y divide-slate-100 overflow-y-auto rounded-xl border border-slate-200">
             {team.map((person) => {
               const on = picked.includes(person.id)

@@ -2,13 +2,14 @@ export const queryKeys = {
   auth: {
     all: ['auth'] as const,
     session: ['auth', 'session'] as const,
-    users: ['auth', 'users'] as const
+    email: ['auth', 'email'] as const
   },
 
   leads: {
     all: ['leads'] as const,
     list: (query: Record<string, unknown>) => ['leads', 'list', query] as const,
-    performance: ['leads', 'performance'] as const
+    performance: ['leads', 'performance'] as const,
+    calls: ['leads', 'calls'] as const
   },
 
   projects: {
@@ -17,7 +18,8 @@ export const queryKeys = {
   },
 
   campaigns: {
-    list: () => ['campaigns', 'list'] as const
+    list: () => ['campaigns', 'list'] as const,
+    sources: () => ['campaigns', 'sources'] as const
   },
 
   users: {

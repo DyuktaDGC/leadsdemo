@@ -5,7 +5,9 @@ import { useFollowUps } from '@hooks/useFollowUps'
 import type { Lead } from '@logic/leads/leadTypes'
 import { statusLabel } from '@logic/rules/statuses'
 import { assigneeNames } from '@logic/rules/transfer'
+import { ContactButtons } from '@pages/leads/ContactButtons'
 import { EditLeadDialog } from '@pages/leads/EditLeadDialog'
+import { RepeatedBadge } from '@pages/leads/LeadTable'
 import { cn } from '@shared/lib/cn'
 import { daysUntil, formatDate, todayKey } from '@shared/lib/date'
 import { pluralize } from '@shared/lib/format'
@@ -38,7 +40,10 @@ export function FollowUpsPage() {
       header: 'Lead',
       cell: (lead) => (
         <div className="min-w-0">
-          <p className="font-semibold text-ink">{lead.name}</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="font-semibold text-ink">{lead.name}</p>
+            <RepeatedBadge lead={lead} />
+          </div>
           <p className="text-xs text-slate-500">{lead.phone ?? 'N/A'}</p>
         </div>
       )
@@ -77,15 +82,18 @@ export function FollowUpsPage() {
     {
       key: 'action',
       header: <span className="block text-right">Action</span>,
-      cell: (lead) =>
-        lead.canEdit ? (
-          <div className="flex justify-end">
+      mobile: 'bare',
+      cell: (lead) => (
+        <div className="flex items-center justify-end gap-2">
+          <ContactButtons lead={lead} />
+          {lead.canEdit && (
             <Button variant="secondary" size="sm" onClick={() => setEditing(lead)}>
               <Pencil className="h-4 w-4" />
               Update
             </Button>
-          </div>
-        ) : null
+          )}
+        </div>
+      )
     }
   ]
 
@@ -111,7 +119,6 @@ export function FollowUpsPage() {
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <SegmentedControl<Tab | 'range'>
-          className="w-full max-w-full overflow-x-auto sm:w-auto"
           value={range ? 'range' : tab}
           onChange={(next) => {
             setRange(null)

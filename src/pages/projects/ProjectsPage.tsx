@@ -47,8 +47,8 @@ export function ProjectsPage() {
         <div className="space-y-4">
           {projects.map((project) => (
               <Card key={project.id} className="space-y-4">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
                     <h2 className="text-base font-semibold text-ink">{project.name}</h2>
                     <p className="mt-0.5 text-xs text-slate-500">
                       {project.memberNames.length > 0
@@ -56,7 +56,7 @@ export function ProjectsPage() {
                         : 'Nobody assigned'}
                     </p>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex shrink-0 items-center gap-2">
                     <Button
                       variant="secondary"
                       size="sm"

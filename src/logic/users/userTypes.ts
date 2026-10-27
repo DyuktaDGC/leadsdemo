@@ -6,6 +6,7 @@ export type AppUser = {
   fullName: string
   role: Role
   active: boolean
+  pending?: boolean
 }
 
 export const userName = (user: AppUser) => user.fullName || user.email

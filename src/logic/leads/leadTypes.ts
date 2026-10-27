@@ -61,6 +61,21 @@ export type Performance = {
   board: { name: string; amount: number; you: boolean }[]
 }
 
+export type CallLog = {
+  at: string
+  leadId: string
+  leadName: string
+  project: string | null
+  campaign: string | null
+  userId: string | null
+  userName: string | null
+}
+
+export type CallStats = {
+  calls: CallLog[]
+  people: { id: string; name: string }[]
+}
+
 export type RosterMember = {
   id: string
   name: string
@@ -72,6 +87,7 @@ export type LeadsResponse = {
   leads: Lead[]
   roster: RosterMember[]
   months: string[]
+  syncedAt: string | null
 }
 
 export type LeadsView = 'mine' | 'unassigned' | 'others' | 'all'
@@ -85,6 +101,7 @@ export type LeadsQuery = {
 export type LeadFilters = {
   project?: string
   priority?: string
+  repeated?: string
   source?: string
   campaign?: string
   timing?: string

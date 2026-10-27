@@ -1,4 +1,4 @@
-import { CalendarClock, Flame, UserPlus, Users } from 'lucide-react'
+import { CalendarClock, FileSpreadsheet, Flame, UserPlus, Users } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
@@ -10,6 +10,7 @@ import { distinctValues } from '@logic/rules/requirements'
 import { allowedLeadsViews } from '@logic/rules/session'
 import { AssignLeadDialog } from '@pages/leads/AssignLeadDialog'
 import { EditLeadDialog } from '@pages/leads/EditLeadDialog'
+import { ImportLeadsDialog } from '@pages/leads/ImportLeadsDialog'
 import { LeadDrawer } from '@pages/leads/LeadDrawer'
 import { LeadFilters } from '@pages/leads/LeadFilters'
 import { LeadTable } from '@pages/leads/LeadTable'
@@ -59,6 +60,7 @@ export function LeadsPage() {
   const [selected, setSelected] = useState<Lead | null>(null)
   const [assigning, setAssigning] = useState<Lead[] | null>(null)
   const [editing, setEditing] = useState<Lead | null>(null)
+  const [uploading, setUploading] = useState(false)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
 
   const assign = (leads: Lead[]) => {
@@ -104,12 +106,15 @@ export function LeadsPage() {
 
   return (
     <div className="space-y-5 sm:space-y-6">
-      <header>
+      <header className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-ink sm:text-3xl">Leads</h1>
+        <Button variant="secondary" onClick={() => setUploading(true)}>
+          <FileSpreadsheet className="h-4 w-4" />
+          Upload Excel
+        </Button>
       </header>
       <div className="flex flex-wrap items-stretch gap-3">
         <SegmentedControl
-          className="scrollbar-thin w-full max-w-full overflow-x-auto sm:w-auto"
           value={view}
           onChange={(option) => {
             setSearchParams(project ? { view: option, project } : { view: option })
@@ -204,6 +209,8 @@ export function LeadsPage() {
       />
 
       {editing && <EditLeadDialog lead={editing} onClose={() => setEditing(null)} />}
+
+      {uploading && <ImportLeadsDialog onClose={() => setUploading(false)} />}
 
       {assigning && (
         <AssignLeadDialog

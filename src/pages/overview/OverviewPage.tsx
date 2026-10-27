@@ -11,6 +11,7 @@ import { sameProject } from '@logic/rules/projects'
 import { isOwner } from '@logic/rules/session'
 import { statusLabel } from '@logic/rules/statuses'
 import { leadsPerAssignee } from '@logic/rules/workload'
+import { RepeatedBadge } from '@pages/leads/LeadTable'
 import { LeadHandlerCard } from '@pages/overview/LeadHandlerCard'
 import { MyTodayLeadsCard, TodayLeadsCard } from '@pages/overview/TodayLeadsCard'
 import { cn } from '@shared/lib/cn'
@@ -201,7 +202,7 @@ export function OverviewPage() {
       <div>
         <Panel title="Follow ups" action={{ to: '/follow-ups', label: 'All follow ups' }}>
           <SegmentedControl
-            className="mb-3 w-full max-w-full overflow-x-auto sm:w-auto sm:self-start"
+            className="mb-3 sm:self-start"
             value={dueTab}
             onChange={setDueTab}
             options={[
@@ -227,7 +228,10 @@ export function OverviewPage() {
                       <CalendarClock className="h-4 w-4" />
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-ink">{lead.name}</p>
+                      <div className="flex min-w-0 items-center gap-2">
+                        <p className="truncate text-sm font-medium text-ink">{lead.name}</p>
+                        <RepeatedBadge lead={lead} />
+                      </div>
                       <p className="truncate text-xs text-slate-600">
                         {formatDateTime(lead.nextFollowUpAt)} · {statusLabel(lead.status)}
                         {lead.project ? ` · ${lead.project}` : ''}

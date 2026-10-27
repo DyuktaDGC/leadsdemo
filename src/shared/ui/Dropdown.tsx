@@ -31,7 +31,7 @@ export function Dropdown<T extends string>({
   const selected = options.find((option) => option.value === value)
 
   return (
-    <div className={cn('relative h-12 sm:h-10', className)}>
+    <div className={cn('relative h-10', className)}>
       <button
         ref={triggerRef}
         type="button"

@@ -2,6 +2,7 @@ import type { Project } from '@logic/rules/projects'
 import { call } from '@shared/lib/backend'
 
 type ProjectWriteInput =
+  | { action: 'setUserProjects'; userId: string; projectIds: string[] }
   | { action: 'addProject'; name: string }
   | { action: 'updateProject'; projectId: string; name?: string; active?: boolean }
   | { action: 'deleteProject'; projectId: string }
@@ -24,3 +25,6 @@ export async function saveProject(project: Project | null, name: string, memberI
   if (projectId && !sameTeam) await writeProject({ action: 'setMembers', projectId, userIds: memberIds })
   return projectId
 }
+
+export const setUserProjects = (userId: string, projectIds: string[]) =>
+  writeProject({ action: 'setUserProjects', userId, projectIds })

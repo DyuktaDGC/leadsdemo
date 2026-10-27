@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom'
 import { cn } from '@shared/lib/cn'
 import { useAnchoredPanel } from '@shared/ui/useAnchoredPanel'
 
-export type SelectOption = { value: string; label: string; short?: string; icon?: ReactNode }
+type SelectOption = { value: string; label: string; short?: string; icon?: ReactNode }
 
 export function Select({
   label,

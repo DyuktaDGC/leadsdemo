@@ -70,16 +70,6 @@ export function handoverPlan(
   return batched
 }
 
-export function splitEvenly(
-  leadIds: string[],
-  userIds: string[]
-): { userId: string; leadIds: string[] }[] {
-  const groups = userIds.map((userId) => ({ userId, leadIds: [] as string[] }))
-  if (groups.length === 0) return []
-  leadIds.forEach((id, index) => groups[index % groups.length]!.leadIds.push(id))
-  return groups.filter((group) => group.leadIds.length > 0)
-}
-
 export function splitByCounts(
   leadIds: string[],
   counts: { userId: string; count: number }[]

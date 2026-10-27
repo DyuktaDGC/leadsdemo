@@ -2,9 +2,10 @@ import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
 import { fetchLeads } from '@logic/leads/leadsApi'
-import type { LeadFilters, LeadsQuery, LeadsView } from '@logic/leads/leadTypes'
+import type { LeadFilters, LeadsQuery, LeadsResponse, LeadsView } from '@logic/leads/leadTypes'
 import { selectLeads } from '@logic/rules/views'
 import { queryKeys } from '@shared/lib/queryKeys'
+import { readCachedLeads, writeCachedLeads } from '@shared/lib/sessionCache'
 
 const NO_FILTERS: LeadFilters = {}
 
@@ -15,7 +16,13 @@ export function useLeads(
 ) {
   const result = useQuery({
     queryKey: queryKeys.leads.list(query),
-    queryFn: () => fetchLeads(query),
+    queryFn: async () => {
+      const data = await fetchLeads(query)
+      writeCachedLeads(query, data)
+      return data
+    },
+    initialData: () => readCachedLeads<LeadsResponse>(query),
+    initialDataUpdatedAt: 0,
     refetchInterval: 2 * 60_000
   })
 
@@ -26,6 +33,7 @@ export function useLeads(
     ...result,
     leads,
     roster: result.data?.roster ?? [],
-    months: result.data?.months ?? []
+    months: result.data?.months ?? [],
+    syncedAt: result.data?.syncedAt ?? null
   }
 }

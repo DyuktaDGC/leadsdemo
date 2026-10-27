@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 
+import { setUserProjects } from '@logic/projects/projectsApi'
 import type { Role } from '@logic/rules/session'
 import { createUser, deleteUser, handOver, listUsers, updateUser } from '@logic/users/usersApi'
 import { userName, type AppUser } from '@logic/users/userTypes'
@@ -17,19 +18,26 @@ export function useUsers() {
 }
 
 function useUserWrite<Input, Result>(write: (input: Input) => Promise<Result>, done: string) {
-  const queryClient = useQueryClient()
+  const refresh = useRefreshPeople()
 
   return useMutation<Result, Error, Input>({
     mutationFn: write,
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.users.all })
+      void refresh()
       toast(done)
     }
   })
 }
 
+type ProjectAccess = { projectIds: string[] | null }
+
+async function saveUser({ projectIds, ...input }: Parameters<typeof updateUser>[0] & ProjectAccess) {
+  await updateUser(input)
+  if (projectIds) await setUserProjects(input.id, projectIds)
+}
+
 export function useUpdateUser() {
-  return useUserWrite(updateUser, 'User updated')
+  return useUserWrite(saveUser, 'User updated')
 }
 
 export function useDeleteUser() {
@@ -46,11 +54,12 @@ function useRefreshPeople() {
   return () =>
     Promise.all([
       queryClient.invalidateQueries({ queryKey: queryKeys.users.all }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.projects.all }),
       queryClient.invalidateQueries({ queryKey: queryKeys.leads.all })
     ])
 }
 
-type NewUser = {
+type NewUser = ProjectAccess & {
   email: string
   fullName: string
   role: Role
@@ -64,9 +73,10 @@ export function useAddUser() {
   const [createdId, setCreatedId] = useState<string | null>(null)
 
   const mutation = useMutation({
-    mutationFn: async ({ email, fullName, role, leaving, keep, deactivate }: NewUser) => {
+    mutationFn: async ({ email, fullName, role, leaving, keep, deactivate, projectIds }: NewUser) => {
       const id = createdId ?? (await createUser({ email, fullName, role }))
       setCreatedId(id)
+      if (projectIds) await setUserProjects(id, projectIds)
       const name = fullName || email
       const moved = leaving ? await handOver(leaving, id, keep, deactivate) : null
       return { name, moved }

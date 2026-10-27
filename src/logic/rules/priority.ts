@@ -1,6 +1,6 @@
 export const LEAD_PRIORITIES = ['high', 'medium', 'low'] as const
 
-export type Priority = (typeof LEAD_PRIORITIES)[number]
+type Priority = (typeof LEAD_PRIORITIES)[number]
 
 const labels: Record<Priority, string> = {
   high: 'High',

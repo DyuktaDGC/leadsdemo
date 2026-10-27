@@ -24,9 +24,11 @@ type SelectableLead = {
   campaign?: string | null
   createdAt: string | null
   nextFollowUpAt: string | null
+  activity?: { event: string }[]
 }
 
 type LeadSelection = RequirementFilters & {
+  repeated?: string
   priority?: string
   source?: string
   campaign?: string
@@ -44,6 +46,9 @@ export function selectLeads<T extends SelectableLead>(
     (lead) =>
       (view === 'all' || lead.view === view) &&
       matchesRequirements(lead, filters) &&
+      (!filters.repeated ||
+        (filters.repeated === 'yes') ===
+          !!lead.activity?.some((entry) => entry.event === 'repeat')) &&
       (!filters.priority || lead.priority === filters.priority) &&
       (!filters.source || lead.source === filters.source) &&
       (!filters.campaign || lead.campaign === filters.campaign) &&
